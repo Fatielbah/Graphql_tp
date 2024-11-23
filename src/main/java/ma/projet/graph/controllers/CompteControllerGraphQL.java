@@ -2,6 +2,7 @@ package ma.projet.graph.controllers;
 
 import lombok.AllArgsConstructor;
 import ma.projet.graph.entities.Compte;
+import ma.projet.graph.entities.TypeCompte;
 import ma.projet.graph.repositories.CompteRepository;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Controller;
 
 import java.util.List;
 import java.util.Map;
+
 
 @Controller
 @AllArgsConstructor
@@ -28,11 +30,26 @@ public class CompteControllerGraphQL {
         if(compte == null) throw new RuntimeException(String.format("Compte %s not found", id));
         else return compte;
     }
+    
+    @QueryMapping
+    public List<Compte> findByType(@Argument TypeCompte type){
+        return compteRepository.findByType(type);
+    }
+    @MutationMapping
+    public Boolean deleteById(@Argument Long id) {
+        if (!compteRepository.existsById(id)) {
+            throw new RuntimeException(String.format("Compte %s not found", id));
+        }
+        compteRepository.deleteById(id);
+        return true;
+    }
+
 
     @MutationMapping
     public Compte saveCompte(@Argument Compte compte){
        return compteRepository.save(compte);
     }
+    
 
     @QueryMapping
     public Map<String, Object> totalSolde() {
